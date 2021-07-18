@@ -1,6 +1,6 @@
 module TreePath exposing
     ( TreePath, atTrunk, go
-    , depth
+    , depth, goesToChildOf, goesToParentOf
     , step, toParent, goToChild
     , serialize
     )
@@ -12,7 +12,7 @@ module TreePath exposing
 
 ## scan
 
-@docs depth
+@docs depth, goesToChildOf, goesToParentOf
 
 
 ## modify
@@ -47,11 +47,11 @@ type alias TreePath =
 {-| Stay at that tree. Don't go anywhere.
 
     TreePath.atTrunk
-        |> TreePath.depth
-    --> 0
+    --> TreePath.go []
 
     TreePath.atTrunk
-    --> TreePath.go []
+        |> TreePath.depth
+    --> 0
 
 -}
 atTrunk : TreePath
@@ -75,6 +75,43 @@ atTrunk =
 depth : TreePath -> Int
 depth =
     List.length
+
+
+{-| Does this path lead to a child or child of a child or ... of the tree at this path?
+
+    TreePath.go [ 2, 3, 0 ]
+        |> TreePath.goesToChildOf
+            (TreePath.go [ 2, 3 ])
+    --> True
+
+    TreePath.go [ 2 ]
+        |> TreePath.goesToChildOf
+            (TreePath.go [ 2, 3 ])
+    --> False
+
+-}
+goesToChildOf : TreePath -> TreePath -> Bool
+goesToChildOf potentialParent =
+    List.isPrefixOf potentialParent
+
+
+{-| Does this path lead to its parent or the parent of its parent or ... of the tree at this path?
+
+    TreePath.go [ 2 ]
+        |> TreePath.goesToParentOf
+            (TreePath.go [ 2, 3 ])
+    --> True
+
+    TreePath.go [ 2, 3, 0 ]
+        |> TreePath.goesToParentOf
+            (TreePath.go [ 2, 3 ])
+    --> False
+
+-}
+goesToParentOf : TreePath -> TreePath -> Bool
+goesToParentOf potentialChild =
+    \path ->
+        potentialChild |> goesToChildOf path
 
 
 {-| The `TreePath` to its parent tree – if there is one.
