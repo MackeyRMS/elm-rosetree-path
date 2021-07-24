@@ -5,7 +5,7 @@ With this package you can use paths to navigate and modify [zwilias/elm-rosetree
 
 A `Tree.Zipper` can also show a specific node in the tree but if you want to
 - keep track of many locations
-- deal with things like one _potentially_ selected node more easily
+- deal with things like one _potentially_ focussed node more easily
 
 → paths can be a nice alternative.
 
