@@ -60,7 +60,7 @@ update msg model =
                       | tree =
                           Tree.updateAt path
                               (Tree.mapLabel
-                                  (\l -> { translate = ... })
+                                  (\l -> { l | translate = ... })
                               )
                     }
 
