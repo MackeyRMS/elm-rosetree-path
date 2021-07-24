@@ -3,9 +3,9 @@
 A path is the location of a branch in a tree.
 With this package you can use paths to navigate and modify [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
 
-A `Tree.Zipper` can also show a specific node in the tree but if you want to
+A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also show a specific node in the tree but if you want to
 - keep track of many locations
-- deal with things like one _potentially_ focussed node more easily
+- easily deal with things like one _potentially_ focussed node
 
 → paths can be a nice alternative.
 
