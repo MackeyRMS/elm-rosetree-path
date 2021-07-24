@@ -268,11 +268,12 @@ viewDocument model =
     { title = "tree from branches"
     , body =
         [ [ viewTrees model
-          , [ Collage.Text.fromString "right click to delete"
-            , Collage.Text.fromString "double click to clone 🟦"
+          , [ "right click to delete"
+            , "double click to clone 🟦"
             ]
                 |> List.map
-                    (Collage.Text.color (rgb 1 1 1)
+                    (Collage.Text.fromString
+                        >> Collage.Text.color (rgb 1 1 1)
                         >> Collage.Text.size 26
                         >> Collage.rendered
                         >> Collage.Layout.align Collage.Layout.base
@@ -307,14 +308,34 @@ viewDocument model =
 viewTrees : Model -> Collage Msg
 viewTrees { trees, selectedPath } =
     let
-        viewTree :
-            { treeIndex : Int, path : TreePath }
-            -> Tree NodeInfo
-            -> Collage Msg
         viewTree indexAndPath tree_ =
             let
                 { path, treeIndex } =
                     indexAndPath
+
+                { factor, translate } =
+                    Tree.label tree_
+
+                children =
+                    Tree.children tree_
+
+                viewLabel =
+                    Collage.square (50 * factor)
+                        |> Collage.filled
+                            ((if selectedPath == Just indexAndPath then
+                                rgb 0 0.5 0.9
+
+                              else
+                                rgb 0 0.7 0.4
+                             )
+                                |> Collage.uniform
+                            )
+                        |> Collage.Events.onMouseDown
+                            (PressedOn indexAndPath)
+                        |> Collage.Events.on "contextmenu"
+                            (Json.Decode.succeed
+                                (RightClickedOn indexAndPath)
+                            )
 
                 viewConnection child =
                     Collage.path
@@ -322,34 +343,13 @@ viewTrees { trees, selectedPath } =
                         , Tree.label child |> .translate
                         ]
                         |> Collage.traced
-                            (Collage.solid
-                                (4 * (Tree.label tree_).factor)
+                            (Collage.solid (4 * factor)
                                 (rgb 0.6 0.4 0 |> Collage.uniform)
                             )
             in
-            (Collage.square
-                (50 * (Tree.label tree_).factor)
-                |> Collage.filled
-                    ((if selectedPath == Just indexAndPath then
-                        rgb 0 0.5 0.9
-
-                      else
-                        rgb 0 0.7 0.4
-                     )
-                        |> Collage.uniform
-                    )
-                |> Collage.Events.onMouseDown
-                    (PressedOn indexAndPath)
-                |> Collage.Events.on "contextmenu"
-                    (Json.Decode.succeed
-                        (RightClickedOn indexAndPath)
-                    )
-            )
-                :: (Tree.children tree_
-                        |> List.map viewConnection
-                   )
-                |> (++)
-                    (Tree.children tree_
+            viewLabel
+                :: (children |> List.map viewConnection)
+                ++ (children
                         |> List.indexedMap
                             (\index ->
                                 viewTree
@@ -357,10 +357,9 @@ viewTrees { trees, selectedPath } =
                                     , path = path |> TreePath.toChild index
                                     }
                             )
-                    )
+                   )
                 |> Collage.group
-                |> Collage.shift
-                    (Tree.label tree_).translate
+                |> Collage.shift translate
     in
     trees
         |> List.indexedMap
