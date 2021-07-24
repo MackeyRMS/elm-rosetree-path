@@ -1,7 +1,7 @@
 {
     "type": "package",
     "name": "lue-bird/elm-rosetree-path",
-    "summary": "paths help navigate rosetrees",
+    "summary": "path: location in a rosetree",
     "license": "MIT",
     "version": "1.0.0",
     "exposed-modules": [

@@ -1,7 +1,7 @@
-# tree-with-path
+# rosetree-path
 
 A path is the location of a branch in a tree.
-With this package you can use paths to navigate [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
+With this package you can use paths to navigate and modify [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
 
 A `Tree.Zipper` can also show a specific node in the tree but if you want to
 - keep track of many locations
@@ -25,7 +25,7 @@ type alias Model =
 type Msg =
     = RightClickedOn TreePath
     | MouseMoved ( Float, Float )
-    --| ...
+  --| ...
 
 update msg model =
     case msg of
@@ -51,5 +51,5 @@ update msg model =
                 Nothing ->
                     model
         
-        --...
+      --...
 ```
