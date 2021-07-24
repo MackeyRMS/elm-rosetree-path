@@ -1,7 +1,7 @@
 module TreePath exposing
     ( TreePath, atTrunk, go
     , depth, goesToChildOf, goesToParentOf
-    , step, toParent, goToChild
+    , step, toParent, toChild
     , serialize
     )
 
@@ -17,7 +17,7 @@ module TreePath exposing
 
 ## modify
 
-@docs step, toParent, goToChild
+@docs step, toParent, toChild
 
 
 ## transform
@@ -65,9 +65,9 @@ atTrunk =
     --> 0
 
     TreePath.atTrunk
-        |> TreePath.goToChild 5
-        |> TreePath.goToChild 2
-        |> TreePath.goToChild 0
+        |> TreePath.toChild 5
+        |> TreePath.toChild 2
+        |> TreePath.toChild 0
         |> TreePath.depth
     --> 3
 
@@ -92,7 +92,9 @@ depth =
 -}
 goesToChildOf : TreePath -> TreePath -> Bool
 goesToChildOf potentialParent =
-    List.isPrefixOf potentialParent
+    \path ->
+        (path |> List.isPrefixOf potentialParent)
+            && (path /= potentialParent)
 
 
 {-| Does this path lead to its parent or the parent of its parent or ... of the tree at this path?
@@ -136,9 +138,9 @@ toParent =
 {-| Go to its ...th child.
 
     TreePath.atTrunk
-        |> TreePath.goToChild 4
-        |> TreePath.goToChild 1
-        |> TreePath.goToChild 8
+        |> TreePath.toChild 4
+        |> TreePath.toChild 1
+        |> TreePath.toChild 8
     --> TreePath.go [ 4, 1, 8 ]
 
 1.  Take the branch at index 4
@@ -155,14 +157,14 @@ This is often useful in recursive functions.
             :: (Tree.children tree
                     |> List.indexedMap
                         (\index ->
-                            view (path |> TreePath.goToChild index)
+                            view (path |> TreePath.toChild index)
                         )
                )
             |> Element.column [ Ui.padding 10 ]
 
 -}
-goToChild : Int -> TreePath -> TreePath
-goToChild childIndex =
+toChild : Int -> TreePath -> TreePath
+toChild childIndex =
     \path -> path ++ [ childIndex ]
 
 
@@ -171,9 +173,9 @@ goToChild childIndex =
     TreePath.go [ 2, 4, 0 ]
     --> [ 2, 4, 0 ] or
     --> TreePath.atTrunk
-    -->     |> TreePath.goToChild 2
-    -->     |> TreePath.goToChild 4
-    -->     |> TreePath.goToChild 0
+    -->     |> TreePath.toChild 2
+    -->     |> TreePath.toChild 4
+    -->     |> TreePath.toChild 0
 
 -}
 go : List Int -> TreePath
