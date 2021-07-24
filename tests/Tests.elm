@@ -48,6 +48,13 @@ pathTest =
                             (TreePath.go [ 2, 3 ])
                         |> Expect.equal False
                 )
+            , test "equal"
+                (\() ->
+                    TreePath.go [ 2, 0, 3 ]
+                        |> TreePath.goesToParentOf
+                            (TreePath.go [ 2, 0, 3 ])
+                        |> Expect.equal False
+                )
             ]
         , describe "goesToChildOf"
             [ test "yes"
@@ -63,6 +70,13 @@ pathTest =
                         [ 2 ]
                         |> TreePath.goesToChildOf
                             (TreePath.go [ 2, 3 ])
+                        |> Expect.equal False
+                )
+            , test "equal"
+                (\() ->
+                    TreePath.go [ 2, 0, 3 ]
+                        |> TreePath.goesToChildOf
+                            (TreePath.go [ 2, 0, 3 ])
                         |> Expect.equal False
                 )
             ]
