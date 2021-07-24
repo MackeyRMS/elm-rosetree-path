@@ -17,6 +17,20 @@ See in [examples](https://github.com/lue-bird/rosetree-path/tree/master/examples
 import TreePath exposing (TreePath)
 import Tree.Extra.Lue as Tree
 
+viewTree path tree =
+    (...
+        |> onMouseDown (PressedOn path)
+        |> onRightClick (RightClickedOn path)
+    )
+        :: (Tree.children tree
+                |> List.indexedMap
+                    (\index ->
+                        viewTree (path |> TreePath.toChild index)
+                    )
+           )
+        |> group
+        |> shift (Tree.label tree).translate
+
 type alias Model =
     { tree : Tree
     , dragged : Maybe TreePath
