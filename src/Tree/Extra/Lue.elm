@@ -3,7 +3,7 @@ module Tree.Extra.Lue exposing
     , at
     , updateAt, removeAt, replaceAt, appendChildren, prependChildren
     , when
-    , serialize
+    , mapWithPath, serialize
     )
 
 {-| To `import as Tree exposing (leaf)`.
@@ -28,14 +28,14 @@ module Tree.Extra.Lue exposing
 
 ## transform
 
-@docs serialize
+@docs mapWithPath, serialize
 
 -}
 
 import List.Extra as List
 import Serialize exposing (Codec)
 import Tree exposing (Tree)
-import TreePath exposing (TreePath)
+import TreePath exposing (TreePath, atTrunk)
 
 
 {-| Alias to `Tree.singleton`: A `Tree` without children. It can be exposed → less noise.
@@ -336,3 +336,37 @@ when isGood trees =
                 |> List.concatMap
                     (Tree.children >> when isGood)
            )
+
+
+{-| Alter every label based on its [`TreePath`](TreePath#TreePath) and current value.
+
+    tree 1
+        [ leaf 2
+        , tree 3 [ leaf 4 ]
+        , leaf 5
+        ]
+        |> Tree.mapWithPath (\path n -> ( n * 2, path ))
+    --> tree ( 2, TreePath.atTrunk )
+    -->     [ leaf ( 4, TreePath.go [ 0 ] )
+    -->     , tree ( 6, TreePath.go [ 1 ] )
+    -->         [ leaf ( 8, TreePath.go [ 1, 0 ] ) ]
+    -->     , leaf ( 10, TreePath.go [ 2 ] )
+    -->     ]
+
+-}
+mapWithPath : (TreePath -> a -> b) -> Tree a -> Tree b
+mapWithPath alter =
+    let
+        mapStep path tree =
+            Tree.tree
+                (tree |> Tree.label |> alter path)
+                (tree
+                    |> Tree.children
+                    |> List.indexedMap
+                        (\index ->
+                            mapStep
+                                (path |> TreePath.toChild index)
+                        )
+                )
+    in
+    mapStep atTrunk

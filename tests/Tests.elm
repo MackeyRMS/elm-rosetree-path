@@ -85,7 +85,7 @@ pathTest =
 
 pathWithTreeTest : Test
 pathWithTreeTest =
-    describe "path together with normal tree"
+    describe "path together with tree"
         [ describe "at"
             [ test "valid path"
                 (\() ->
@@ -260,6 +260,23 @@ pathWithTreeTest =
                     |> Expect.equal
                         (tree "hello"
                             [ leaf "you", leaf "and", leaf "you" ]
+                        )
+            )
+        , test "mapWithPath"
+            (\() ->
+                tree 1
+                    [ leaf 2
+                    , tree 3 [ leaf 4 ]
+                    , leaf 5
+                    ]
+                    |> Tree.mapWithPath (\path n -> ( n * 2, path ))
+                    |> Expect.equal
+                        (tree ( 2, TreePath.atTrunk )
+                            [ leaf ( 4, TreePath.go [ 0 ] )
+                            , tree ( 6, TreePath.go [ 1 ] )
+                                [ leaf ( 8, TreePath.go [ 1, 0 ] ) ]
+                            , leaf ( 10, TreePath.go [ 2 ] )
+                            ]
                         )
             )
         ]
