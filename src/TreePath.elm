@@ -135,7 +135,7 @@ toParent =
                 (\( _, wayToParent ) -> wayToParent)
 
 
-{-| Go to its ...th child.
+{-| The path to its ...th child from there.
 
     TreePath.atTrunk
         |> TreePath.toChild 4
@@ -150,17 +150,14 @@ toParent =
 This is often useful in recursive functions.
 
     view path tree =
-        Element.Input.button []
-            { label = Tree.label tree |> Element.text
-            , onPress = Clicked path
-            }
+        button [ onPress (Clicked path) ]
             :: (Tree.children tree
                     |> List.indexedMap
                         (\index ->
                             view (path |> TreePath.toChild index)
                         )
                )
-            |> Element.column [ Ui.padding 10 ]
+            |> column [ Ui.padding (10 / TreePath.depth path) ]
 
 -}
 toChild : Int -> TreePath -> TreePath
