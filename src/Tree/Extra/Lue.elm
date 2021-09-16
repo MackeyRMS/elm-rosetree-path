@@ -32,6 +32,7 @@ module Tree.Extra.Lue exposing
 
 -}
 
+import LinearDirection exposing (LinearDirection(..))
 import List.Extra as List
 import Serialize exposing (Codec)
 import Tree exposing (Tree)
@@ -64,9 +65,9 @@ leaf =
 
 -}
 prependChildren : List (Tree a) -> Tree a -> Tree a
-prependChildren prependedChildren =
+prependChildren childrenToPrepend =
     Tree.mapChildren
-        (\l -> prependedChildren ++ l)
+        (\children -> childrenToPrepend ++ children)
 
 
 {-| Put a list of children after all current children.
@@ -81,7 +82,17 @@ prependChildren prependedChildren =
 appendChildren : List (Tree a) -> Tree a -> Tree a
 appendChildren appendedChildren =
     Tree.mapChildren
-        (\l -> l ++ appendedChildren)
+        (\children -> children ++ appendedChildren)
+
+
+fold : LinearDirection -> (a -> acc -> acc) -> acc -> Tree a -> acc
+fold direction =
+    case direction of
+        FirstToLast ->
+            Tree.foldl
+
+        LastToFirst ->
+            Tree.foldr
 
 
 {-| A [`Codec`](https://package.elm-lang.org/packages/MartinSStewart/elm-serialize/latest/) to serialize a `Tree`.
@@ -345,7 +356,8 @@ when isGood trees =
         , tree 3 [ leaf 4 ]
         , leaf 5
         ]
-        |> Tree.mapWithPath (\path n -> ( n * 2, path ))
+        |> Tree.mapWithPath
+            (\path n -> ( n * 2, path ))
     --> tree ( 2, TreePath.atTrunk )
     -->     [ leaf ( 4, TreePath.go [ 0 ] )
     -->     , tree ( 6, TreePath.go [ 1 ] )
