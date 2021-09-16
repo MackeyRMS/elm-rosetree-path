@@ -1,12 +1,15 @@
 module Tree.Extra.Lue exposing
     ( leaf
     , at
-    , updateAt, removeAt, replaceAt, appendChildren, prependChildren
+    , mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
     , when
-    , mapWithPath, serialize
+    , fold, serialize
     )
 
 {-| To `import as Tree exposing (leaf)`.
+
+
+## create
 
 @docs leaf
 
@@ -18,17 +21,17 @@ module Tree.Extra.Lue exposing
 
 ## modify
 
-@docs updateAt, removeAt, replaceAt, appendChildren, prependChildren
+@docs mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
 
 
-## filter
+### filter
 
 @docs when
 
 
 ## transform
 
-@docs mapWithPath, serialize
+@docs fold, serialize
 
 -}
 
@@ -85,6 +88,27 @@ appendChildren appendedChildren =
         (\children -> children ++ appendedChildren)
 
 
+{-| Reduce all labels in the `Tree` depth-first in a direction:
+
+    tree0To5
+        |> Tree.fold FirstToLast Array.push Array.empty
+    --> [ 0, 1, 2, 3, 4, 5 ] |> Array.fromList
+
+    tree0To5
+        |> Tree.fold LastToFirst Array.push Array.empty
+    --> [ 5, 4, 3, 2, 1, 0 ] |> Array.fromList
+
+    tree0To5 =
+        tree 0
+            [ leaf 1
+            , tree 2
+                [ leaf 3
+                , leaf 4
+                ]
+            , leaf 5
+            ]
+
+-}
 fold : LinearDirection -> (a -> acc -> acc) -> acc -> Tree a -> acc
 fold direction =
     case direction of
