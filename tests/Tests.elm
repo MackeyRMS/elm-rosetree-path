@@ -1,6 +1,8 @@
 module Tests exposing (suite)
 
+import Array
 import Expect exposing (Expectation)
+import LinearDirection exposing (LinearDirection(..))
 import Test exposing (Test, describe, test)
 import Tree exposing (tree)
 import Tree.Extra.Lue as Tree exposing (leaf)
@@ -262,6 +264,37 @@ pathWithTreeTest =
                             [ leaf "you", leaf "and", leaf "you" ]
                         )
             )
+        , let
+            tree0To5 =
+                tree 0
+                    [ leaf 1
+                    , tree 2
+                        [ leaf 3
+                        , leaf 4
+                        ]
+                    , leaf 5
+                    ]
+          in
+          describe "fold"
+            [ test "FirstToLast"
+                (\() ->
+                    tree0To5
+                        |> Tree.fold FirstToLast Array.push Array.empty
+                        |> Expect.equal
+                            ([ 0, 1, 2, 3, 4, 5 ]
+                                |> Array.fromList
+                            )
+                )
+            , test "LastToFirst"
+                (\() ->
+                    tree0To5
+                        |> Tree.fold LastToFirst Array.push Array.empty
+                        |> Expect.equal
+                            ([ 5, 4, 3, 2, 1, 0 ]
+                                |> Array.fromList
+                            )
+                )
+            ]
         , test "mapWithPath"
             (\() ->
                 tree 1
