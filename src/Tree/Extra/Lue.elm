@@ -21,7 +21,7 @@ module Tree.Extra.Lue exposing
 
 ## modify
 
-@docs mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
+@docs replaceLabel, mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
 
 
 ### filter
@@ -58,7 +58,23 @@ leaf =
     Tree.singleton
 
 
+{-| Set the label of this tree to a new value.
+
+    import Tree.Extra.Lue as Tree
+
+    tree "hello" [ leaf "world" ]
+        |> Tree.replaceLabel "bye"
+    --> tree "bye" [ leaf "world" ]
+
+-}
+replaceLabel : a -> Tree a -> Tree a
+replaceLabel newLabel =
+    Tree.mapLabel (\_ -> newLabel)
+
+
 {-| Put a list of children left to all current children.
+
+    import Tree.Extra.Lue as Tree
 
     tree "dear" [ leaf "George" ]
         |> Tree.prependChildren
@@ -75,6 +91,8 @@ prependChildren childrenToPrepend =
 
 {-| Put a list of children after all current children.
 
+    import Tree.Extra.Lue as Tree
+
     tree "hello" [ leaf "you" ]
         |> Tree.appendChildren
             [ leaf "and", leaf "you" ]
@@ -89,6 +107,8 @@ appendChildren appendedChildren =
 
 
 {-| Reduce all labels in the `Tree` depth-first in a direction:
+
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree0To5
         |> Tree.fold FirstToLast Array.push Array.empty
@@ -139,6 +159,8 @@ serialize serializeLabel =
 
 {-| Following the [`TreePath`](TreePath#TreePath), where do we end?
 
+    import Tree.Extra.Lue as Tree exposing (leaf)
+
     leaf "jo"
         |> Tree.at TreePath.atTrunk
     --> Just (leaf "jo")
@@ -178,6 +200,8 @@ at path =
 
 
 {-| Replace the sub-tree at a [`TreePath`](TreePath#TreePath) with a new `Tree`.
+
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree "jo"
         [ leaf "ann"
@@ -230,6 +254,8 @@ replaceAt path newSubTreeAtPath =
 
 
 {-| Remove the sub-`Tree` at the end of a [`TreePath`](TreePath#TreePath) from a `Tree`.
+
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     [ leaf "ann"
     , tree "mic"
@@ -284,6 +310,8 @@ removeAt path =
 
 {-| Change the sub-tree at a [`TreePath`](TreePath#TreePath) based on its current value.
 
+    import Tree.Extra.Lue as Tree exposing (leaf)
+
     tree "jo"
         [ leaf "ann"
         , tree "mic"
@@ -337,6 +365,8 @@ updateAt path updateAtPath =
 {-| Take all the branches where condition is met.
 When a branch fails, all its children are checked.
 
+    import Tree.Extra.Lue as Tree exposing (leaf)
+
     tree { name = "boss tree", selected = Unselected }
         [ tree { name = "hugg", selected = Selected }
             [ leaf { name = "zugg", selected = Selected }
@@ -374,6 +404,8 @@ when isGood trees =
 
 
 {-| Alter every label based on its [`TreePath`](TreePath#TreePath) and current value.
+
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree 1
         [ leaf 2
