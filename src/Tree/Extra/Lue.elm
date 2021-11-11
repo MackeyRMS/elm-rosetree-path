@@ -44,7 +44,8 @@ import TreePath exposing (TreePath, atTrunk)
 
 {-| Alias to `Tree.singleton`: A `Tree` without children. It can be exposed → less noise.
 
-    import Tree.Extra.Lue as Tree exposing (leaf)
+    import Tree
+    import Tree.Extra.Lue exposing (leaf)
 
     leaf 5 |> Tree.label
     --> 5
@@ -60,6 +61,7 @@ leaf =
 
 {-| Set the label of this tree to a new value.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree
 
     tree "hello" [ leaf "world" ]
@@ -74,7 +76,8 @@ replaceLabel newLabel =
 
 {-| Put a list of children left to all current children.
 
-    import Tree.Extra.Lue as Tree
+    import Tree exposing (tree)
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree "dear" [ leaf "George" ]
         |> Tree.prependChildren
@@ -91,7 +94,8 @@ prependChildren childrenToPrepend =
 
 {-| Put a list of children after all current children.
 
-    import Tree.Extra.Lue as Tree
+    import Tree exposing (tree)
+    import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree "hello" [ leaf "you" ]
         |> Tree.appendChildren
@@ -108,15 +112,8 @@ appendChildren appendedChildren =
 
 {-| Reduce all labels in the `Tree` depth-first in a direction:
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
-
-    tree0To5
-        |> Tree.fold FirstToLast Array.push Array.empty
-    --> [ 0, 1, 2, 3, 4, 5 ] |> Array.fromList
-
-    tree0To5
-        |> Tree.fold LastToFirst Array.push Array.empty
-    --> [ 5, 4, 3, 2, 1, 0 ] |> Array.fromList
 
     tree0To5 =
         tree 0
@@ -127,6 +124,14 @@ appendChildren appendedChildren =
                 ]
             , leaf 5
             ]
+
+    tree0To5
+        |> Tree.fold FirstToLast Array.push Array.empty
+    --> [ 0, 1, 2, 3, 4, 5 ] |> Array.fromList
+
+    tree0To5
+        |> Tree.fold LastToFirst Array.push Array.empty
+    --> [ 5, 4, 3, 2, 1, 0 ] |> Array.fromList
 
 -}
 fold : LinearDirection -> (a -> acc -> acc) -> acc -> Tree a -> acc
@@ -159,6 +164,7 @@ serialize serializeLabel =
 
 {-| Following the [`TreePath`](TreePath#TreePath), where do we end?
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     leaf "jo"
@@ -201,6 +207,7 @@ at path =
 
 {-| Replace the sub-tree at a [`TreePath`](TreePath#TreePath) with a new `Tree`.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree "jo"
@@ -255,6 +262,7 @@ replaceAt path newSubTreeAtPath =
 
 {-| Remove the sub-`Tree` at the end of a [`TreePath`](TreePath#TreePath) from a `Tree`.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     [ leaf "ann"
@@ -310,6 +318,7 @@ removeAt path =
 
 {-| Change the sub-tree at a [`TreePath`](TreePath#TreePath) based on its current value.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree "jo"
@@ -365,6 +374,7 @@ updateAt path updateAtPath =
 {-| Take all the branches where condition is met.
 When a branch fails, all its children are checked.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree { name = "boss tree", selected = Unselected }
@@ -405,6 +415,7 @@ when isGood trees =
 
 {-| Alter every label based on its [`TreePath`](TreePath#TreePath) and current value.
 
+    import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
     tree 1
