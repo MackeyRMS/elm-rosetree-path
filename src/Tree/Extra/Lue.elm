@@ -1,7 +1,7 @@
 module Tree.Extra.Lue exposing
     ( leaf
     , at
-    , mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
+    , replaceLabel, mapWithPath, updateAt, removeAt, replaceAt, appendChildren, prependChildren
     , when
     , fold, serialize
     )
