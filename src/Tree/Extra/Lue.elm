@@ -112,6 +112,7 @@ appendChildren appendedChildren =
 
 {-| Reduce all labels in the `Tree` depth-first in a direction:
 
+    import Array
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
