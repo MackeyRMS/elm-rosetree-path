@@ -168,7 +168,10 @@ toChild childIndex =
 {-| Conveniently describe the route to go from the trunk.
 
     TreePath.go [ 2, 4, 0 ]
-    --> [ 2, 4, 0 ] or
+    --> [ 2, 4, 0 ]
+
+    -- or
+    TreePath.go [ 2, 4, 0 ]
     --> TreePath.atTrunk
     -->     |> TreePath.toChild 2
     -->     |> TreePath.toChild 4
@@ -181,6 +184,10 @@ go childIndices =
 
 
 {-| Go to the next child index.
+
+    import Tree exposing (Tree)
+    import TreePath exposing (TreePath)
+
 
     TreePath.go [ 2, 4, 0 ]
         |> TreePath.step
