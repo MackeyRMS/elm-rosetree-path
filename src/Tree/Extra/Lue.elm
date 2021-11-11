@@ -166,6 +166,7 @@ serialize serializeLabel =
 
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import TreePath
 
     leaf "jo"
         |> Tree.at TreePath.atTrunk
@@ -209,6 +210,7 @@ at path =
 
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import TreePath
 
     tree "jo"
         [ leaf "ann"
@@ -264,6 +266,7 @@ replaceAt path newSubTreeAtPath =
 
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import TreePath
 
     [ leaf "ann"
     , tree "mic"
@@ -320,6 +323,7 @@ removeAt path =
 
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import TreePath
 
     tree "jo"
         [ leaf "ann"
@@ -377,29 +381,26 @@ When a branch fails, all its children are checked.
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
 
-    tree { name = "boss tree", selected = Unselected }
-        [ tree { name = "hugg", selected = Selected }
-            [ leaf { name = "zugg", selected = Selected }
-            , leaf { name = "gugg", selected = Unselected }
+    tree { name = "boss tree", selected = False }
+        [ tree { name = "hugg", selected = True }
+            [ leaf { name = "zugg", selected = True }
+            , leaf { name = "gugg", selected = False }
             ]
-        , leaf { name = "naomi", selected = Unselected }
-        , tree { name = "unselmo", selected = Unselected }
-            [ leaf { name = "selmo", selected = Selected }
-            , leaf { name = "helmo", selected = Unselected }
+        , leaf { name = "naomi", selected = False }
+        , tree { name = "unselmo", selected = False }
+            [ leaf { name = "selmo", selected = True }
+            , leaf { name = "helmo", selected = False }
             ]
         ]
         |> Tree.children
         |> Tree.when
-            (Tree.label
-                >> .selected
-                >> (==) Selected
-            )
+            (Tree.label >> .selected)
 
-    --> [ tree { name = "hugg", selected = Selected }
-    -->     [ leaf { name = "zugg", selected = Selected }
-    -->     , leaf { name = "gugg", selected = Unselected }
+    --> [ tree { name = "hugg", selected = True }
+    -->     [ leaf { name = "zugg", selected = True }
+    -->     , leaf { name = "gugg", selected = False }
     -->     ]
-    --> , leaf { name = "selmo", selected = Selected }
+    --> , leaf { name = "selmo", selected = True }
     --> ]
 
 -}
@@ -417,6 +418,7 @@ when isGood trees =
 
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import TreePath
 
     tree 1
         [ leaf 2
