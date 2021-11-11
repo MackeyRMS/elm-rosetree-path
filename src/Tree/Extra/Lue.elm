@@ -110,29 +110,20 @@ appendChildren appendedChildren =
         (\children -> children ++ appendedChildren)
 
 
-{-| Reduce all labels in the `Tree` depth-first in a direction:
+{-| Reduce all labels in the `Tree` depth-first in a [direction](https://package.elm-lang.org/packages/lue-bird/elm-linear-direction/latest/):
 
     import Array
     import Tree exposing (tree)
     import Tree.Extra.Lue as Tree exposing (leaf)
+    import LinearDirection exposing (LinearDirection(..))
 
-    tree0To5 =
-        tree 0
-            [ leaf 1
-            , tree 2
-                [ leaf 3
-                , leaf 4
-                ]
-            , leaf 5
-            ]
-
-    tree0To5
+    tree 0 [ leaf 1, tree 2 [ leaf 3 ], leaf 5 ]
         |> Tree.fold FirstToLast Array.push Array.empty
-    --> [ 0, 1, 2, 3, 4, 5 ] |> Array.fromList
+    --> [ 0, 1, 2, 3, 5 ] |> Array.fromList
 
-    tree0To5
+    tree 0 [ leaf 1, tree 2 [ leaf 3 ], leaf 5 ]
         |> Tree.fold LastToFirst Array.push Array.empty
-    --> [ 5, 4, 3, 2, 1, 0 ] |> Array.fromList
+    --> [ 5, 3, 2, 1, 0 ] |> Array.fromList
 
 -}
 fold : LinearDirection -> (a -> acc -> acc) -> acc -> Tree a -> acc

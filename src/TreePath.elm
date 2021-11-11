@@ -197,7 +197,6 @@ go childIndices =
         |> TreePath.step
     --> Nothing
 
-    at : TreePath -> Tree a -> Maybe (Tree a)
     at path =
         case TreePath.step path of
             Nothing ->
