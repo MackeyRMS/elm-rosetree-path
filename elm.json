@@ -3,7 +3,7 @@
     "name": "lue-bird/elm-rosetree-path",
     "summary": "path: location in a rosetree",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "exposed-modules": [
         "Tree.Extra.Lue",
         "TreePath"
