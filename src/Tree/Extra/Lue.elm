@@ -35,7 +35,7 @@ module Tree.Extra.Lue exposing
 
 -}
 
-import LinearDirection exposing (LinearDirection(..))
+import Linear exposing (Direction(..))
 import List.Extra as List
 import Serialize exposing (Codec)
 import Tree exposing (Tree)
@@ -126,13 +126,13 @@ appendChildren appendedChildren =
     --> [ 5, 3, 2, 1, 0 ] |> Array.fromList
 
 -}
-fold : LinearDirection -> (a -> acc -> acc) -> acc -> Tree a -> acc
+fold : Linear.Direction -> (a -> acc -> acc) -> acc -> Tree a -> acc
 fold direction =
     case direction of
-        FirstToLast ->
+        Up ->
             Tree.foldl
 
-        LastToFirst ->
+        Down ->
             Tree.foldr
 
 
@@ -193,9 +193,11 @@ at path =
             Just
 
         Just ( index, further ) ->
-            Tree.children
-                >> List.getAt index
-                >> Maybe.andThen (at further)
+            \tree ->
+                tree
+                    |> Tree.children
+                    |> List.getAt index
+                    |> Maybe.andThen (at further)
 
 
 {-| Replace the sub-tree at a [`TreePath`](TreePath#TreePath) with a new `Tree`.
