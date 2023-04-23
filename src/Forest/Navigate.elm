@@ -25,7 +25,7 @@ import Forest.Path exposing (ForestPath)
 import List.Extra
 import Tree exposing (Tree)
 import Tree.Navigate
-import Tree.Path exposing (TreePath)
+import Tree.Path
 
 
 {-| A `List` of [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/)s
