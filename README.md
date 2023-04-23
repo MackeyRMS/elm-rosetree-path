@@ -1,17 +1,17 @@
 # rosetree-path
 
-A path is the location of a branch in a tree.
-With this package you can use paths to navigate and alter a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
+A path is the location of a branch in a tree (or forest).
+With this package you can use paths to navigate and alter a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/) or a list of them, also called a "forest.
 
-A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also show a specific node in the tree.
+A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also focus a specific node in a tree.
 However! Paths can be a nice alternative if you want to
-- keep track of many locations
+- keep track of many different locations
 - easily deal with _potentially_ focussed nodes etc.
 - don't want to pollute `Msg`es with potentially large, changing tree content
 
 Example: There's a big tree on the screen. You want to be able to move and delete a subtree.
 
-See in [examples](https://github.com/lue-bird/rosetree-path/tree/master/example/).
+See in [example](https://github.com/lue-bird/rosetree-path/tree/master/example/).
 
 ```elm
 import Tree.Path exposing (TreePath)
