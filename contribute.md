@@ -20,13 +20,5 @@ commits look like this:
 | + ...    | add     |
 | - ...    | remove  |
 | +- ...   | change  |
-| ↻ ...    | update  |
-| ✓ ...    | correct |
 | -< ...   | split   |
 | >- ...   | merge   |
-
-#### Others
-| mark        | means         |
-| :---------- | :------------ |
-| #...        | see           |
-| ! ...       | attention     |
