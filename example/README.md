@@ -1,7 +1,11 @@
 ## examples
 
+Run online in <https://elm-editor.com/> or locally by cloning, then
+```noformattingples
+elm reactor
+```
+
 ### your forest
-["play"](https://lue-bird.github.io/elm-rosetree-path/examples/your-forest)
 
 You can
 - move a subtree

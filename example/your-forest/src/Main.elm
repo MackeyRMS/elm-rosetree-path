@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Angle
 import Browser
 import Browser.Dom
 import Collage exposing (Collage)
@@ -8,17 +9,22 @@ import Collage.Layout
 import Collage.Render
 import Collage.Text
 import Color exposing (Color, rgb, rgba)
+import Direction2d
+import Forest.Navigate exposing (Forest)
+import Forest.Path exposing (ForestPath)
 import Html
 import Html.Attributes
 import Html.Events
 import Json.Decode
 import List.Extra as List
+import Pixels exposing (Pixels)
+import Point2d exposing (Point2d)
 import Random
 import Task
 import Tree exposing (Tree, tree)
-import Tree.Extra.Lue as Tree exposing (leaf)
-import TreePath exposing (TreePath)
-import Xy exposing (Xy)
+import Tree.Navigate
+import Tree.Path exposing (TreePath)
+import Vector2d
 
 
 main : Program () Model Msg
@@ -32,16 +38,16 @@ main =
 
 
 type alias Model =
-    { trees : List (Tree NodeInfo)
-    , selectedPath : Maybe { treeIndex : Int, path : TreePath }
-    , windowSize : Xy Float
-    , dragged : Maybe { treeIndex : Int, path : TreePath }
-    , mousePosition : Xy Float
+    { trees : Forest NodeInfo
+    , selectedPath : Maybe ForestPath
+    , windowSize : { width : Float, height : Float }
+    , dragged : Maybe ForestPath
+    , mousePosition : Point2d Pixels Float
     }
 
 
 type alias NodeInfo =
-    { translate : Xy Float
+    { translate : Point2d Pixels Float
     , factor : Float
     }
 
@@ -50,13 +56,13 @@ init : ( Model, Cmd Msg )
 init =
     ( { trees = []
       , selectedPath = Nothing
-      , windowSize = Xy.zero
+      , windowSize = { width = 0, height = 0 }
       , dragged = Nothing
-      , mousePosition = ( 0, 0 )
+      , mousePosition = Point2d.origin
       }
     , [ Browser.Dom.getViewport
             |> Task.perform
-                (.viewport >> Xy.fromSize >> WindowSized)
+                (\v -> { width = v.viewport.width, height = v.viewport.height } |> WindowSized)
       , Random.generate InitialTreeGenerated
             (randomBranches { depth = 0 })
       ]
@@ -65,15 +71,15 @@ init =
 
 
 type Msg
-    = BranchSelected { treeIndex : Int, path : TreePath }
+    = BranchSelected ForestPath
     | DoubleClicked
-    | WindowSized (Xy Float)
-    | InitialTreeGenerated (List (Tree NodeInfo))
-    | MouseMoved (Xy Float)
-    | PressedOn { treeIndex : Int, path : TreePath } (Xy Float)
+    | WindowSized { width : Float, height : Float }
+    | InitialTreeGenerated (Forest NodeInfo)
+    | MouseMoved (Point2d Pixels Float)
+    | PressedOn ForestPath (Point2d Pixels Float)
     | MouseLifted
-    | RightClickedOn { treeIndex : Int, path : TreePath }
-    | NoOp
+    | RightClickedOn ForestPath
+    | ContextMenuActivated
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,29 +95,26 @@ update msg model =
 
         DoubleClicked ->
             ( let
+                selectedTree : Maybe (Tree NodeInfo)
                 selectedTree =
                     model.selectedPath
                         |> Maybe.andThen
-                            (\{ treeIndex, path } ->
-                                model.trees
-                                    |> List.getAt treeIndex
-                                    |> Maybe.andThen (Tree.at path)
+                            (\path ->
+                                model.trees |> Forest.Navigate.to path
                             )
               in
               { model
                 | trees =
                     case selectedTree of
+                        Nothing ->
+                            model.trees
+
                         Just selected ->
                             model.trees
                                 ++ [ selected
                                         |> Tree.mapLabel
-                                            (updateTranslate
-                                                (\_ -> model.mousePosition)
-                                            )
+                                            (updateTranslate (\_ -> model.mousePosition))
                                    ]
-
-                        Nothing ->
-                            model.trees
               }
             , Cmd.none
             )
@@ -119,8 +122,7 @@ update msg model =
         WindowSized windowSize ->
             ( { model
                 | windowSize =
-                    windowSize
-                        |> Xy.map (\c -> c - 3.5)
+                    { width = windowSize.width - 3.5, height = windowSize.height - 3.5 }
               }
             , Cmd.none
             )
@@ -128,7 +130,7 @@ update msg model =
         InitialTreeGenerated branches ->
             ( { model
                 | trees =
-                    [ tree { translate = ( 0, 0 ), factor = 1 }
+                    [ tree { translate = Point2d.origin, factor = 1 }
                         branches
                     ]
               }
@@ -137,35 +139,33 @@ update msg model =
 
         MouseMoved positionOnScreen ->
             let
+                mousePosition : Point2d Pixels Float
                 mousePosition =
-                    ( Xy.x positionOnScreen
-                        - (Xy.x model.windowSize / 2)
-                    , (Xy.y model.windowSize / 2)
-                        - Xy.y positionOnScreen
-                    )
+                    Point2d.fromRecord Pixels.float
+                        { x =
+                            (positionOnScreen |> Point2d.xCoordinate |> Pixels.toFloat)
+                                - (model.windowSize.width / 2)
+                        , y =
+                            (model.windowSize.height / 2)
+                                - (positionOnScreen |> Point2d.yCoordinate |> Pixels.toFloat)
+                        }
             in
             ( case model.dragged of
-                Just indexAndPath ->
+                Just path ->
                     { model
-                        | dragged = Just indexAndPath
-                        , selectedPath = Just indexAndPath
+                        | selectedPath = Just path
                         , mousePosition = mousePosition
                         , trees =
                             let
-                                { treeIndex, path } =
-                                    indexAndPath
-
                                 mouseMovement =
-                                    Xy.map2 (\now previous -> now - previous)
-                                        mousePosition
-                                        model.mousePosition
+                                    Vector2d.from model.mousePosition mousePosition
                             in
                             model.trees
-                                |> List.updateAt treeIndex
-                                    (Tree.updateAt path
-                                        (Tree.mapLabel
-                                            (updateTranslate
-                                                (Xy.map2 (+) mouseMovement)
+                                |> Forest.Navigate.alter path
+                                    (Tree.mapLabel
+                                        (updateTranslate
+                                            (\translate ->
+                                                translate |> Point2d.translateBy mouseMovement
                                             )
                                         )
                                     )
@@ -194,32 +194,22 @@ update msg model =
             , Cmd.none
             )
 
-        RightClickedOn indexAndPath ->
+        RightClickedOn path ->
             ( { model
                 | selectedPath =
-                    if model.selectedPath == Just indexAndPath then
+                    if model.selectedPath == Just path then
                         Nothing
 
                     else
                         model.selectedPath
                 , trees =
-                    let
-                        { treeIndex, path } =
-                            indexAndPath
-                    in
-                    case path of
-                        [] ->
-                            model.trees |> List.removeAt treeIndex
-
-                        _ ->
-                            model.trees
-                                |> List.updateAt treeIndex
-                                    (Tree.mapChildren (Tree.removeAt path))
+                    model.trees
+                        |> Forest.Navigate.remove path
               }
             , Cmd.none
             )
 
-        NoOp ->
+        ContextMenuActivated ->
             ( model, Cmd.none )
 
 
@@ -245,16 +235,22 @@ randomBranches { depth } =
                                 (\i branches ->
                                     tree
                                         { translate =
-                                            Xy.direction
-                                                (turns
-                                                    ((1 / 4)
-                                                        * ((toFloat i * 2 + 1)
-                                                            / toFloat branchCount
-                                                          )
+                                            let
+                                                directionInRadians =
+                                                    Angle.turns
+                                                        ((1 / 4)
+                                                            * ((toFloat i * 2 + 1)
+                                                                / toFloat branchCount
+                                                              )
+                                                        )
+                                            in
+                                            Point2d.origin
+                                                |> Point2d.translateBy
+                                                    (directionInRadians
+                                                        |> Direction2d.fromAngle
+                                                        |> Vector2d.withLength
+                                                            (0.1 * toFloat (10 - depth) ^ 3 |> Pixels.float)
                                                     )
-                                                )
-                                                |> Xy.map
-                                                    ((*) (0.1 * toFloat (10 - depth) ^ 3))
                                         , factor = 0.9 * toFloat (depth + 1) ^ -1.4
                                         }
                                         branches
@@ -272,32 +268,34 @@ viewDocument model =
             , "double click to clone 🟦"
             ]
                 |> List.map
-                    (Collage.Text.fromString
-                        >> Collage.Text.color (rgb 1 1 1)
-                        >> Collage.Text.size 26
-                        >> Collage.rendered
-                        >> Collage.Layout.align Collage.Layout.base
+                    (\line ->
+                        line
+                            |> Collage.Text.fromString
+                            |> Collage.Text.color (rgb 1 1 1)
+                            |> Collage.Text.size 26
+                            |> Collage.rendered
+                            |> Collage.Layout.align Collage.Layout.base
                     )
                 |> List.intersperse (Collage.Layout.spacer 0 10)
                 |> Collage.Layout.vertical
                 |> Collage.Layout.align Collage.Layout.base
                 |> Collage.shiftY -200
-          , Xy.to Collage.rectangle model.windowSize
+          , Collage.rectangle model.windowSize.width model.windowSize.height
                 |> Collage.filled
                     (rgb 0 0 0 |> Collage.uniform)
           ]
             |> Collage.group
             |> Collage.Events.onMouseUp (\_ -> MouseLifted)
-            |> Collage.Events.onMouseMove MouseMoved
+            |> Collage.Events.onMouseMove (Point2d.fromTuple Pixels.float >> MouseMoved)
             |> Collage.Events.onDoubleClick DoubleClicked
-            |> Collage.Render.svgBox model.windowSize
+            |> Collage.Render.svgBox ( model.windowSize.width, model.windowSize.height )
             |> (\collage ->
                     Html.div
                         [ Html.Attributes.style
                             "background-color"
                             "black"
                         , Html.Events.preventDefaultOn "contextmenu"
-                            (Json.Decode.succeed ( NoOp, True ))
+                            (Json.Decode.succeed ( ContextMenuActivated, True ))
                         ]
                         [ collage ]
                )
@@ -308,21 +306,15 @@ viewDocument model =
 viewTrees : Model -> Collage Msg
 viewTrees { trees, selectedPath } =
     let
-        viewTree indexAndPath tree_ =
+        viewTree :
+            { path : ForestPath, label : NodeInfo, children : List { ui : Collage Msg, translate : Point2d Pixels Float } }
+            -> { ui : Collage Msg, translate : Point2d Pixels Float }
+        viewTree sub =
             let
-                { path, treeIndex } =
-                    indexAndPath
-
-                { factor, translate } =
-                    Tree.label tree_
-
-                children =
-                    Tree.children tree_
-
                 viewLabel =
-                    Collage.square (50 * factor)
+                    Collage.square (50 * sub.label.factor)
                         |> Collage.filled
-                            ((if selectedPath == Just indexAndPath then
+                            ((if selectedPath == Just sub.path then
                                 rgb 0 0.5 0.9
 
                               else
@@ -330,44 +322,42 @@ viewTrees { trees, selectedPath } =
                              )
                                 |> Collage.uniform
                             )
-                        |> Collage.Events.onMouseDown
-                            (PressedOn indexAndPath)
+                        |> Collage.Events.onMouseDown (Point2d.fromTuple Pixels.float >> PressedOn sub.path)
                         |> Collage.Events.on "contextmenu"
-                            (Json.Decode.succeed
-                                (RightClickedOn indexAndPath)
-                            )
+                            (Json.Decode.succeed (RightClickedOn sub.path))
 
-                viewConnection child =
+                viewConnection childTranslate =
                     Collage.path
                         [ ( 0, 0 )
-                        , Tree.label child |> .translate
+                        , childTranslate |> Point2d.toTuple Pixels.toFloat
                         ]
                         |> Collage.traced
-                            (Collage.solid (4 * factor)
+                            (Collage.solid (4 * sub.label.factor)
                                 (rgb 0.6 0.4 0 |> Collage.uniform)
                             )
             in
-            viewLabel
-                :: (children |> List.map viewConnection)
-                ++ (children
-                        |> List.indexedMap
-                            (\index ->
-                                viewTree
-                                    { treeIndex = treeIndex
-                                    , path = path |> TreePath.toChild index
-                                    }
-                            )
-                   )
-                |> Collage.group
-                |> Collage.shift translate
+            { translate = sub.label.translate
+            , ui =
+                viewLabel
+                    :: (sub.children |> List.map .ui)
+                    ++ (sub.children |> List.map (.translate >> viewConnection))
+                    |> Collage.group
+                    |> Collage.shift (sub.label.translate |> Point2d.toTuple Pixels.toFloat)
+            }
     in
     trees
         |> List.indexedMap
-            (\index ->
-                viewTree
-                    { treeIndex = index
-                    , path = TreePath.atTrunk
-                    }
+            (\index tree ->
+                tree
+                    |> Tree.Navigate.restructure
+                        (\sub ->
+                            viewTree
+                                { label = sub.label
+                                , children = sub.children
+                                , path = Forest.Path.fromIndex index sub.path
+                                }
+                        )
+                    |> .ui
             )
         |> Collage.group
 
@@ -380,7 +370,7 @@ type alias Update inner outer =
     (inner -> inner) -> outer -> outer
 
 
-updateTranslate : Update t { r | translate : t }
+updateTranslate : Update t { r_ | translate : t }
 updateTranslate changeTranslate =
     \t ->
         { t
