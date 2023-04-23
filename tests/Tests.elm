@@ -2,93 +2,102 @@ module Tests exposing (suite)
 
 import Array
 import Expect exposing (Expectation)
-import LinearDirection exposing (LinearDirection(..))
+import Forest.Navigate
+import Forest.Path
+import Linear exposing (Direction(..))
 import Test exposing (Test, describe, test)
-import Tree exposing (tree)
-import Tree.Extra.Lue as Tree exposing (leaf)
-import TreePath exposing (TreePath)
+import Tree exposing (Tree, tree)
+import Tree.Navigate
+import Tree.Path exposing (TreePath)
+
+
+{-| Short for `Tree.singleton`: A `Tree` without children.
+-}
+leaf : a -> Tree a
+leaf =
+    Tree.singleton
 
 
 suite : Test
 suite =
     describe "rosetree-path"
-        [ pathTest
-        , pathWithTreeTest
+        [ treePathTest
+        , treeNavigateTest
         ]
 
 
-pathTest : Test
-pathTest =
-    describe "path"
+treePathTest : Test
+treePathTest =
+    describe "Tree.Path"
         [ describe "toParent"
             [ test "parent path exists"
                 (\() ->
-                    TreePath.go [ 1, 2, 3 ]
-                        |> TreePath.toParent
+                    Tree.Path.follow [ 1, 2, 3 ]
+                        |> Tree.Path.toParent
                         |> Expect.equal
-                            (Just (TreePath.go [ 1, 2 ]))
+                            (Just (Tree.Path.follow [ 1, 2 ]))
                 )
             , test "no parent path"
                 (\() ->
-                    TreePath.go []
-                        |> TreePath.toParent
+                    Tree.Path.follow []
+                        |> Tree.Path.toParent
                         |> Expect.equal Nothing
                 )
             ]
-        , describe "goesToParentOf"
+        , describe "targetsParentOf"
             [ test "yes"
                 (\() ->
-                    TreePath.go [ 2 ]
-                        |> TreePath.goesToParentOf
-                            (TreePath.go [ 2, 3 ])
+                    Tree.Path.follow [ 2 ]
+                        |> Tree.Path.targetsParentOf
+                            (Tree.Path.follow [ 2, 3 ])
                         |> Expect.equal True
                 )
             , test "no"
                 (\() ->
-                    TreePath.go [ 2, 3, 0 ]
-                        |> TreePath.goesToParentOf
-                            (TreePath.go [ 2, 3 ])
+                    Tree.Path.follow [ 2, 3, 0 ]
+                        |> Tree.Path.targetsParentOf
+                            (Tree.Path.follow [ 2, 3 ])
                         |> Expect.equal False
                 )
             , test "equal"
                 (\() ->
-                    TreePath.go [ 2, 0, 3 ]
-                        |> TreePath.goesToParentOf
-                            (TreePath.go [ 2, 0, 3 ])
+                    Tree.Path.follow [ 2, 0, 3 ]
+                        |> Tree.Path.targetsParentOf
+                            (Tree.Path.follow [ 2, 0, 3 ])
                         |> Expect.equal False
                 )
             ]
-        , describe "goesToChildOf"
+        , describe "targetsChildOf"
             [ test "yes"
                 (\() ->
-                    TreePath.go [ 2, 3, 0 ]
-                        |> TreePath.goesToChildOf
-                            (TreePath.go [ 2, 3 ])
+                    Tree.Path.follow [ 2, 3, 0 ]
+                        |> Tree.Path.targetsChildOf
+                            (Tree.Path.follow [ 2, 3 ])
                         |> Expect.equal True
                 )
             , test "no"
                 (\() ->
-                    TreePath.go
+                    Tree.Path.follow
                         [ 2 ]
-                        |> TreePath.goesToChildOf
-                            (TreePath.go [ 2, 3 ])
+                        |> Tree.Path.targetsChildOf
+                            (Tree.Path.follow [ 2, 3 ])
                         |> Expect.equal False
                 )
             , test "equal"
                 (\() ->
-                    TreePath.go [ 2, 0, 3 ]
-                        |> TreePath.goesToChildOf
-                            (TreePath.go [ 2, 0, 3 ])
+                    Tree.Path.follow [ 2, 0, 3 ]
+                        |> Tree.Path.targetsChildOf
+                            (Tree.Path.follow [ 2, 0, 3 ])
                         |> Expect.equal False
                 )
             ]
         ]
 
 
-pathWithTreeTest : Test
-pathWithTreeTest =
-    describe "path together with tree"
-        [ describe "at"
+treeNavigateTest : Test
+treeNavigateTest =
+    describe "Tree.Navigate"
+        [ describe "to"
             [ test "valid path"
                 (\() ->
                     tree "jo"
@@ -99,7 +108,7 @@ pathWithTreeTest =
                             , leaf "bee"
                             ]
                         ]
-                        |> Tree.at (TreePath.go [ 1, 2 ])
+                        |> Tree.Navigate.to (Tree.Path.follow [ 1, 2 ])
                         |> Expect.equal (Just (leaf "bee"))
                 )
             , test "invalid path"
@@ -111,57 +120,11 @@ pathWithTreeTest =
                             , leaf "dee"
                             ]
                         ]
-                        |> Tree.at (TreePath.go [ 1, 2 ])
+                        |> Tree.Navigate.to (Tree.Path.follow [ 1, 2 ])
                         |> Expect.equal Nothing
                 )
             ]
-        , describe "replaceAt"
-            [ test "valid path"
-                (\() ->
-                    tree "jo"
-                        [ leaf "ann"
-                        , tree "mic"
-                            [ leaf "igg"
-                            , leaf "dee"
-                            , leaf "bee"
-                            ]
-                        ]
-                        |> Tree.replaceAt (TreePath.go [ 1, 2 ])
-                            (leaf "be")
-                        |> Expect.equal
-                            (tree "jo"
-                                [ leaf "ann"
-                                , tree "mic"
-                                    [ leaf "igg"
-                                    , leaf "dee"
-                                    , leaf "be"
-                                    ]
-                                ]
-                            )
-                )
-            , test "invalid path"
-                (\() ->
-                    tree "jo"
-                        [ leaf "ann"
-                        , tree "mic"
-                            [ leaf "igg"
-                            , leaf "dee"
-                            ]
-                        ]
-                        |> Tree.replaceAt (TreePath.go [ 1, 2 ])
-                            (leaf "be")
-                        |> Expect.equal
-                            (tree "jo"
-                                [ leaf "ann"
-                                , tree "mic"
-                                    [ leaf "igg"
-                                    , leaf "dee"
-                                    ]
-                                ]
-                            )
-                )
-            ]
-        , describe "removeAt"
+        , describe "remove"
             [ test "valid path"
                 (\() ->
                     [ leaf "ann"
@@ -171,7 +134,7 @@ pathWithTreeTest =
                         , leaf "bee"
                         ]
                     ]
-                        |> Tree.removeAt (TreePath.go [ 1, 2 ])
+                        |> Forest.Navigate.remove (Forest.Path.fromIndex 1 (Tree.Path.follow [ 2 ]))
                         |> Expect.equal
                             [ leaf "ann"
                             , tree "mic"
@@ -188,7 +151,7 @@ pathWithTreeTest =
                         , leaf "dee"
                         ]
                     ]
-                        |> Tree.removeAt (TreePath.go [ 1, 2 ])
+                        |> Forest.Navigate.remove (Forest.Path.fromIndex 1 (Tree.Path.follow [ 2 ]))
                         |> Expect.equal
                             [ leaf "ann"
                             , tree "mic"
@@ -198,7 +161,7 @@ pathWithTreeTest =
                             ]
                 )
             ]
-        , describe "updateAt"
+        , describe "alter"
             [ test "valid path"
                 (\() ->
                     tree "jo"
@@ -209,7 +172,7 @@ pathWithTreeTest =
                             , leaf "bee"
                             ]
                         ]
-                        |> Tree.updateAt (TreePath.go [ 1, 2 ])
+                        |> Tree.Navigate.alter (Tree.Path.follow [ 1, 2 ])
                             (Tree.mapLabel String.toUpper)
                         |> Expect.equal
                             (tree "jo"
@@ -231,7 +194,7 @@ pathWithTreeTest =
                             , leaf "dee"
                             ]
                         ]
-                        |> Tree.updateAt (TreePath.go [ 1, 2 ])
+                        |> Tree.Navigate.alter (Tree.Path.follow [ 1, 2 ])
                             (Tree.mapLabel String.toUpper)
                         |> Expect.equal
                             (tree "jo"
@@ -244,27 +207,8 @@ pathWithTreeTest =
                             )
                 )
             ]
-        , test "prependChildren"
-            (\() ->
-                tree "dear" [ leaf "George" ]
-                    |> Tree.prependChildren
-                        [ leaf "May", leaf "and" ]
-                    |> Expect.equal
-                        (tree "dear"
-                            [ leaf "May", leaf "and", leaf "George" ]
-                        )
-            )
-        , test "appendChildren"
-            (\() ->
-                tree "hello" [ leaf "you" ]
-                    |> Tree.appendChildren
-                        [ leaf "and", leaf "you" ]
-                    |> Expect.equal
-                        (tree "hello"
-                            [ leaf "you", leaf "and", leaf "you" ]
-                        )
-            )
         , let
+            tree0To5 : Tree Int
             tree0To5 =
                 tree 0
                     [ leaf 1
@@ -275,40 +219,40 @@ pathWithTreeTest =
                     , leaf 5
                     ]
           in
-          describe "fold"
-            [ test "FirstToLast"
+          describe "foldFrom"
+            [ test "Up"
                 (\() ->
                     tree0To5
-                        |> Tree.fold FirstToLast Array.push Array.empty
+                        |> Tree.Navigate.foldFrom Array.empty Up (.label >> Array.push)
                         |> Expect.equal
                             ([ 0, 1, 2, 3, 4, 5 ]
                                 |> Array.fromList
                             )
                 )
-            , test "LastToFirst"
+            , test "Down"
                 (\() ->
                     tree0To5
-                        |> Tree.fold LastToFirst Array.push Array.empty
+                        |> Tree.Navigate.foldFrom Array.empty Down (.label >> Array.push)
                         |> Expect.equal
                             ([ 5, 4, 3, 2, 1, 0 ]
                                 |> Array.fromList
                             )
                 )
             ]
-        , test "mapWithPath"
+        , test "map"
             (\() ->
                 tree 1
                     [ leaf 2
                     , tree 3 [ leaf 4 ]
                     , leaf 5
                     ]
-                    |> Tree.mapWithPath (\path n -> ( n * 2, path ))
+                    |> Tree.Navigate.map (\n -> ( n.label * 2, n.path ))
                     |> Expect.equal
-                        (tree ( 2, TreePath.atTrunk )
-                            [ leaf ( 4, TreePath.go [ 0 ] )
-                            , tree ( 6, TreePath.go [ 1 ] )
-                                [ leaf ( 8, TreePath.go [ 1, 0 ] ) ]
-                            , leaf ( 10, TreePath.go [ 2 ] )
+                        (tree ( 2, Tree.Path.atTrunk )
+                            [ leaf ( 4, Tree.Path.follow [ 0 ] )
+                            , tree ( 6, Tree.Path.follow [ 1 ] )
+                                [ leaf ( 8, Tree.Path.follow [ 1, 0 ] ) ]
+                            , leaf ( 10, Tree.Path.follow [ 2 ] )
                             ]
                         )
             )

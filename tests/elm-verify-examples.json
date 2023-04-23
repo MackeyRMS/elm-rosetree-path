@@ -1,7 +1,9 @@
 {
   "root": "../src",
   "tests": [
-    "TreePath",
-    "Tree.Extra.Lue"
+    "Tree.Path",
+    "Tree.Navigate",
+    "Forest.Path",
+    "Forest.Navigate"
   ]
 }

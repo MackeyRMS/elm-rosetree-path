@@ -1,21 +1,21 @@
 # rosetree-path
 
 A path is the location of a branch in a tree.
-With this package you can use paths to navigate and modify [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
+With this package you can use paths to navigate and alter a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
 
-A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also show a specific node in the tree but if you want to
+A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also show a specific node in the tree.
+However! Paths can be a nice alternative if you want to
 - keep track of many locations
-- easily deal with things like one _potentially_ focussed node
-
-→ paths can be a nice alternative.
+- easily deal with _potentially_ focussed nodes etc.
+- don't want to pollute `Msg`es with potentially large, changing tree content
 
 Example: There's a big tree on the screen. You want to be able to move and delete a subtree.
 
-See in [examples](https://github.com/lue-bird/rosetree-path/tree/master/examples/).
+See in [examples](https://github.com/lue-bird/rosetree-path/tree/master/example/).
 
 ```elm
-import TreePath exposing (TreePath)
-import Tree.Extra.Lue as Tree
+import Tree.Path exposing (TreePath)
+import Tree.Navigate
 
 
 type alias Model =
@@ -23,20 +23,18 @@ type alias Model =
     , dragged : Maybe TreePath
     }
 
-viewTree path tree =
-    (...
-        |> onMouseDown (PressedOn path)
-        |> onRightClick (RightClickedOn path)
-    )
-        :: (Tree.children tree
-                |> List.indexedMap
-                    (\index ->
-                        viewTree
-                            (path |> TreePath.toChild index)
-                    )
-           )
-        |> group
-        |> shift (Tree.label tree).translate
+viewTree =
+    Tree.restructure
+        (\sub ->
+            (sub.label
+                |> ...
+                |> onMouseDown (PressedOn sub.path)
+                |> onRightClick (RightClickedOn sub.path)
+            )
+                :: sub.children
+                |> group
+                |> shift sub.label.translate
+        )
 
 type Msg =
     = RightClickedOn TreePath
@@ -50,7 +48,7 @@ update msg model =
               | trees =
                   model.tree
                       |> Tree.mapChildren
-                          (Tree.removeAt path)
+                          (Tree.Navigate.remove path)
             }
         
         MouseMoved mousePosition ->
@@ -58,7 +56,7 @@ update msg model =
                 Just path ->
                     { model
                       | tree =
-                          Tree.updateAt path
+                          Tree.Navigate.alter path
                               (Tree.mapLabel
                                   (\l -> { l | translate = ... })
                               )
