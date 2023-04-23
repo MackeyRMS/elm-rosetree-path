@@ -46,7 +46,7 @@ update msg model =
     case msg of
         RightClickedOn path ->
             { model
-              | trees =
+              | tree =
                   model.tree
                       |> Tree.mapChildren
                           (Tree.Navigate.remove path)
