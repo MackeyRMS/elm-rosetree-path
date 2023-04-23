@@ -265,7 +265,7 @@ alter path updateAtPath =
                 )
 
 
-{-| Alter every label based on its [`TreePath`](TreePath#TreePath) and current value.
+{-| Alter every label based on its [`TreePath`](Tree-Path#TreePath) and current value.
 
     import Tree exposing (tree)
     import Tree.Navigate
