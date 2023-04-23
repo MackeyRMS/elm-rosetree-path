@@ -5,7 +5,7 @@ module Forest.Path exposing
     , toChild
     )
 
-{-| Navigation for a [`Forest`](Forest-WithPath#Forest)
+{-| Location in a [`Forest`](Forest-Navigate#Forest)
 
 @docs ForestPath
 
@@ -61,7 +61,7 @@ fromIndex treeIndexValue pathIntoTreeAtIndexValue =
     ( treeIndexValue, pathIntoTreeAtIndexValue )
 
 
-{-| Which tree to step inside in a [`Forest`](Forest-WithPath#Forest)
+{-| Which tree to step inside in a [`Forest`](Forest-Navigate#Forest)
 -}
 treeIndex : ForestPath -> Int
 treeIndex =
