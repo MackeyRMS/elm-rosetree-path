@@ -1,21 +1,14 @@
 module Tests exposing (suite)
 
 import Array
-import Expect exposing (Expectation)
+import Expect
 import Forest.Navigate
 import Forest.Path
 import Linear exposing (Direction(..))
 import Test exposing (Test, describe, test)
 import Tree exposing (Tree, tree)
 import Tree.Navigate
-import Tree.Path exposing (TreePath)
-
-
-{-| Short for `Tree.singleton`: A `Tree` without children.
--}
-leaf : a -> Tree a
-leaf =
-    Tree.singleton
+import Tree.Path
 
 
 suite : Test
@@ -257,3 +250,10 @@ treeNavigateTest =
                         )
             )
         ]
+
+
+{-| Short for `Tree.singleton`: A `Tree` without children.
+-}
+leaf : a -> Tree a
+leaf =
+    Tree.singleton
