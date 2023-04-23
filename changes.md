@@ -1,6 +1,10 @@
 # changelog
 
+## 2.0.0
+
+complete revamp
+
 ### 1.1.0
 
-- added `Tree.Extra.Lue.replaceLabel`
-- added `Tree.Extra.Lue.fold` which uses [linear-direction](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
+- added `Tree.Navigate.replaceLabel`
+- added `Tree.Navigate.fold` which uses [linear-direction](https://dark.elm.dmy.fr/packages/lue-bird/elm-linear-direction/latest/)
