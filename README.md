@@ -1,7 +1,8 @@
 # rosetree-path
 
 A path is the location of a branch in a tree (or forest).
-With this package you can use paths to navigate and alter a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/) or a list of them, also called a "forest.
+With this package you can use paths to navigate and alter
+a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/) or a list of them, also called a "forest".
 
 A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also focus a specific node in a tree.
 However! Paths can be a nice alternative if you want to
