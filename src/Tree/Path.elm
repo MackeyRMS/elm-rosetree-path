@@ -4,7 +4,7 @@ module Tree.Path exposing
     , step, toParent, toChild
     )
 
-{-| `import Tree.Path exposing (TreePath)`.
+{-| Location in a [`Tree`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/)
 
 @docs TreePath, atTrunk, follow
 
@@ -23,7 +23,7 @@ module Tree.Path exposing
 import List.Extra
 
 
-{-| The unique location of a child-`Tree` in a `Tree`.
+{-| The unique location of a (child-)`Tree` in a [`Tree`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/).
 
 You describe which branch index to go along every step.
 
