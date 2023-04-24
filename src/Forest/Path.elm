@@ -48,6 +48,7 @@ from the [`treeIndex`](#treeIndex) and [`pathIntoTreeAtIndex`](#pathIntoTreeAtIn
 
     import Tree
     import Tree.Path
+    import Forest.Navigate
 
     [ Tree.singleton 0
     , Tree.singleton 1
@@ -76,6 +77,8 @@ pathIntoTreeAtIndex =
 
 
 {-| The path to its ...th child from there.
+
+    import Tree.Path
 
     Forest.Path.fromIndex 1 Tree.Path.atTrunk
         |> Forest.Path.toChild 4
