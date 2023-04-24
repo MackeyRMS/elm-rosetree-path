@@ -1,10 +1,8 @@
 module Tests exposing (suite)
 
-import Array
 import Expect
 import Forest.Navigate
 import Forest.Path
-import Linear exposing (Direction(..))
 import Test exposing (Test, describe, test)
 import Tree exposing (Tree, tree)
 import Tree.Navigate

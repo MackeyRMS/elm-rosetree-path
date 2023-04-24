@@ -24,7 +24,6 @@ using [`TreePath`](Tree-Path#TreePath)
 
 -}
 
-import Linear exposing (Direction(..))
 import List.Extra
 import Tree exposing (Tree)
 import Tree.Path exposing (TreePath)
