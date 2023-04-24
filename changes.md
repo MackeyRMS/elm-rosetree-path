@@ -1,5 +1,9 @@
 # changelog
 
+#### 2.0.2
+
+`...Path` types documentation correct
+
 #### 2.0.1
 
 readme example correct
