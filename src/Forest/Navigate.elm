@@ -1,7 +1,7 @@
 module Forest.Navigate exposing
     ( Forest
     , to
-    , alter, remove
+    , alter, remove, map
     )
 
 {-| Additional helpers for a list of [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/)s
@@ -17,7 +17,7 @@ using [`ForestPath`](Forest-Path#ForestPath)
 
 ## altering
 
-@docs alter, remove
+@docs alter, remove, map
 
 -}
 
@@ -43,7 +43,35 @@ type alias Forest label =
 
 {-| Following the [`ForestPath`](Forest-Path#ForestPath), where do we end?
 
-TODO example
+    import Tree exposing (tree)
+    import Forest.Navigate
+    import Tree.Path
+    import Forest.Path
+
+    [ Tree.singleton "gee"
+    , tree "jo"
+        [ Tree.singleton "ann"
+        , tree "mic"
+            [ Tree.singleton "igg"
+            , Tree.singleton "dee"
+            , Tree.singleton "bee"
+            ]
+        ]
+    ]
+        |> Forest.Navigate.to (Forest.Path.fromIndex 1 (Tree.Path.follow [ 1, 2 ]))
+    --> Just (Tree.singleton "bee")
+
+    [ Tree.singleton "gee"
+    , tree "jo"
+        [ Tree.singleton "ann"
+        , tree "mic"
+            [ Tree.singleton "igg"
+            , Tree.singleton "dee"
+            ]
+        ]
+    ]
+        |> Forest.Navigate.to (Forest.Path.fromIndex 1 (Tree.Path.follow [ 1, 2 ]))
+    --> Nothing
 
 -}
 to : ForestPath -> Forest label -> Maybe (Tree label)
@@ -56,7 +84,54 @@ to path =
 
 {-| Change its sub-tree at a given [`ForestPath`](Forest-Path#ForestPath) based on its current value.
 
-TODO example
+    import Tree exposing (tree)
+    import Forest.Navigate
+    import Tree.Path
+    import Forest.Path
+
+    [ Tree.singleton "gee"
+    , tree "jo"
+        [ Tree.singleton "ann"
+        , tree "mic"
+            [ Tree.singleton "igg"
+            , Tree.singleton "dee"
+            , Tree.singleton "bee"
+            ]
+        ]
+    ]
+        |> Forest.Navigate.alter (Forest.Path.fromIndex 1 (Tree.Path.follow [ 1, 2 ]))
+            (Tree.mapLabel String.toUpper)
+    --> [ Tree.singleton "gee"
+    --> , tree "jo"
+    -->     [ Tree.singleton "ann"
+    -->     , tree "mic"
+    -->         [ Tree.singleton "igg"
+    -->         , Tree.singleton "dee"
+    -->         , Tree.singleton "BEE"
+    -->         ]
+    -->     ]
+    --> ]
+
+    [ Tree.singleton "gee"
+    , tree "jo"
+        [ Tree.singleton "ann"
+        , tree "mic"
+            [ Tree.singleton "igg"
+            , Tree.singleton "dee"
+            ]
+        ]
+    ]
+        |> Forest.Navigate.alter (Forest.Path.fromIndex 1 (Tree.Path.follow [ 1, 2 ]))
+            (Tree.mapLabel String.toUpper)
+    --> [ Tree.singleton "gee"
+    --> , tree "jo"
+    -->     [ Tree.singleton "ann"
+    -->     , tree "mic"
+    -->         [ Tree.singleton "igg"
+    -->         , Tree.singleton "dee"
+    -->         ]
+    -->     ]
+    --> ]
 
 -}
 alter : ForestPath -> (Tree label -> Tree label) -> Forest label -> Forest label
@@ -120,3 +195,44 @@ remove path =
         Just furtherInChildren ->
             List.Extra.updateAt (path |> Forest.Path.treeIndex)
                 (Tree.mapChildren (remove furtherInChildren))
+
+
+{-| Change every tree label based on its [`ForestPath`](Forest-Path#ForestPath) and current value.
+
+    import Tree exposing (tree)
+    import Forest.Navigate
+    import Forest.Path
+    import Tree.Path
+
+    [ Tree.singleton -1
+    , tree 1
+        [ Tree.singleton 2
+        , tree 3 [ Tree.singleton 4 ]
+        , Tree.singleton 5
+        ]
+    ]
+        |> Forest.Navigate.map
+            (\n -> ( n.label * 2, n.path ))
+    --> [ Tree.singleton ( -2, Forest.Path.fromIndex 0 Tree.Path.atTrunk )
+    --> , tree ( 2, Forest.Path.fromIndex 1 Tree.Path.atTrunk )
+    -->     [ Tree.singleton ( 4, Forest.Path.fromIndex 1 (Tree.Path.follow [ 0 ]) )
+    -->     , tree ( 6, Forest.Path.fromIndex 1 (Tree.Path.follow [ 1 ]) )
+    -->         [ Tree.singleton ( 8, Forest.Path.fromIndex 1 (Tree.Path.follow [ 1, 0 ]) ) ]
+    -->     , Tree.singleton ( 10, Forest.Path.fromIndex 1 (Tree.Path.follow [ 2 ]) )
+    -->     ]
+    --> ]
+
+-}
+map : ({ label : label, path : ForestPath } -> mappedLabel) -> (Forest label -> Forest mappedLabel)
+map labelWithPathChange =
+    \forest ->
+        forest
+            |> List.indexedMap
+                (\treeIndex tree ->
+                    tree
+                        |> Tree.Navigate.map
+                            (\sub ->
+                                { label = sub.label, path = Forest.Path.fromIndex treeIndex sub.path }
+                                    |> labelWithPathChange
+                            )
+                )
