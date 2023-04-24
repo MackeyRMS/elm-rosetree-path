@@ -30,7 +30,13 @@ viewTree =
             (sub.label
                 |> ...
                 |> onMouseDown (PressedOn sub.path)
-                |> onRightClick (RightClickedOn sub.path)
+                |> (case sub.path |> Tree.Path.step of
+                        Just childPath ->
+                            onRightClick (RightClickedOn childPath)
+                        Nothing ->
+                            -- top level node should not be removable
+                            identity
+                   )
             )
                 :: sub.children
                 |> group
@@ -38,7 +44,7 @@ viewTree =
         )
 
 type Msg =
-    = RightClickedOn TreePath
+    = RightClickedOn ForestPath
     | MouseMoved ( Float, Float )
   --| ...
 
@@ -48,8 +54,8 @@ update msg model =
             { model
               | tree =
                   model.tree
-                      |> Tree.mapChildren
-                          (Tree.Navigate.remove path)
+                    |> Tree.mapChildren
+                        (Forest.Navigate.remove path)
             }
         
         MouseMoved mousePosition ->
@@ -57,10 +63,11 @@ update msg model =
                 Just path ->
                     { model
                       | tree =
-                          Tree.Navigate.alter path
-                              (Tree.mapLabel
-                                  (\l -> { l | translate = ... })
-                              )
+                          model.tree
+                            |> Tree.Navigate.alter path
+                                (Tree.mapLabel
+                                    (\l -> { l | translate = ... })
+                                )
                     }
 
                 Nothing ->
