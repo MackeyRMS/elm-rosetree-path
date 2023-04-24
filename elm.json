@@ -3,7 +3,7 @@
     "name": "lue-bird/elm-rosetree-path",
     "summary": "navigate rosetrees and forests",
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "exposed-modules": [
         "Tree.Path",
         "Tree.Navigate",
