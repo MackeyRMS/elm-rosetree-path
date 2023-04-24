@@ -32,7 +32,7 @@ You describe which branch index to go along every step.
     , ...
     ]
 
-Represented as a tuple to simplify pattern matching and enable using it as a `comparable` key.
+Represented as a list to simplify pattern matching and enable using it as a `comparable` key.
 
 Instead of working with that `List` directly, I recommend using the helpers here to create and operate on these paths.
 

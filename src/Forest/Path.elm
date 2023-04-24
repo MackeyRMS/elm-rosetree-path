@@ -36,7 +36,7 @@ plus the [`TreePath`](Tree-Path#TreePath) to navigate inside that tree.
 
 Represented as a tuple to simplify pattern matching and enable using it as a `comparable` key.
 
-Instead of working with that `List` directly, I recommend using the helpers here to create and operate on these paths.
+Instead of working with that tuple directly, I recommend using the helpers here to create and operate on these paths.
 
 -}
 type alias ForestPath =
