@@ -200,38 +200,6 @@ treeNavigateTest =
                             )
                 )
             ]
-        , let
-            tree0To5 : Tree Int
-            tree0To5 =
-                tree 0
-                    [ leaf 1
-                    , tree 2
-                        [ leaf 3
-                        , leaf 4
-                        ]
-                    , leaf 5
-                    ]
-          in
-          describe "foldFrom"
-            [ test "Up"
-                (\() ->
-                    tree0To5
-                        |> Tree.Navigate.foldFrom Array.empty Up (.label >> Array.push)
-                        |> Expect.equal
-                            ([ 0, 1, 2, 3, 4, 5 ]
-                                |> Array.fromList
-                            )
-                )
-            , test "Down"
-                (\() ->
-                    tree0To5
-                        |> Tree.Navigate.foldFrom Array.empty Down (.label >> Array.push)
-                        |> Expect.equal
-                            ([ 5, 4, 3, 2, 1, 0 ]
-                                |> Array.fromList
-                            )
-                )
-            ]
         , test "map"
             (\() ->
                 tree 1

@@ -1,7 +1,7 @@
 module Tree.Navigate exposing
     ( to
     , map, alter
-    , restructure, foldFrom
+    , restructure
     )
 
 {-| Additional helpers for a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/)
@@ -20,7 +20,7 @@ using [`TreePath`](Tree-Path#TreePath)
 
 ## transform
 
-@docs restructure, foldFrom
+@docs restructure
 
 -}
 
@@ -28,87 +28,6 @@ import Linear exposing (Direction(..))
 import List.Extra
 import Tree exposing (Tree)
 import Tree.Path exposing (TreePath)
-
-
-{-| Reduce all labels in the `Tree` depth-first
-in a given [direction](https://package.elm-lang.org/packages/lue-bird/elm-linear-direction/latest/):
-
-    import Array
-    import Tree exposing (tree)
-    import Tree.Navigate
-    import Linear exposing (Direction(..))
-
-    tree 0 [ Tree.singleton 1, tree 2 [ Tree.singleton 3 ], Tree.singleton 5 ]
-        |> Tree.Navigate.fold Up (.label >> Array.push) Array.empty
-    --> [ 0, 1, 2, 3, 5 ] |> Array.fromList
-
-    tree 0 [ Tree.singleton 1, tree 2 [ Tree.singleton 3 ], Tree.singleton 5 ]
-        |> Tree.Navigate.fold Down (.label >> Array.push) Array.empty
-    --> [ 5, 3, 2, 1, 0 ] |> Array.fromList
-
--}
-foldFrom :
-    folded
-    -> Linear.Direction
-    -> ({ path : TreePath, label : label } -> (folded -> folded))
-    -> (Tree label -> folded)
-foldFrom initialFolded direction reduce =
-    case direction of
-        Up ->
-            foldUpFrom initialFolded reduce
-
-        Down ->
-            foldDownFromAt initialFolded reduce
-
-
-foldUpFrom :
-    folded
-    -> ({ path : TreePath, label : label } -> (folded -> folded))
-    -> (Tree label -> folded)
-foldUpFrom initialFolded reduce =
-    \tree ->
-        tree
-            |> Tree.children
-            |> List.foldl
-                (\childTree soFar ->
-                    { index = soFar.index + 1
-                    , folded =
-                        childTree
-                            |> foldUpFrom soFar.folded
-                                (\state ->
-                                    reduce { path = state.path |> Tree.Path.toChild soFar.index, label = state.label }
-                                )
-                    }
-                )
-                { folded = initialFolded |> reduce { path = Tree.Path.atTrunk, label = tree |> Tree.label }
-                , index = 0
-                }
-            |> .folded
-
-
-foldDownFromAt :
-    folded
-    -> ({ path : TreePath, label : label } -> (folded -> folded))
-    -> (Tree label -> folded)
-foldDownFromAt initialFolded reduce =
-    \tree ->
-        tree
-            |> Tree.children
-            |> List.foldr
-                (\childTree soFar ->
-                    { index = soFar.index - 1
-                    , folded =
-                        childTree
-                            |> foldDownFromAt soFar.folded
-                                (\state ->
-                                    reduce { path = state.path |> Tree.Path.toChild soFar.index, label = state.label }
-                                )
-                    }
-                )
-                { folded = initialFolded |> reduce { path = Tree.Path.atTrunk, label = tree |> Tree.label }
-                , index = (tree |> Tree.children |> List.length) - 1
-                }
-            |> .folded
 
 
 {-| A powerful tree transformation which can be described as "replacing the tree node constructors"
@@ -170,7 +89,7 @@ restructure reduce =
     import Tree.Path
 
     Tree.singleton "jo"
-        |> Tree.Navigate.at Tree.Path.atTrunk
+        |> Tree.Navigate.to Tree.Path.atTrunk
     --> Just (Tree.singleton "jo")
 
     tree "jo"
@@ -181,7 +100,7 @@ restructure reduce =
             , Tree.singleton "bee"
             ]
         ]
-        |> Tree.Navigate.at (Tree.Path.follow [ 1, 2 ])
+        |> Tree.Navigate.to (Tree.Path.follow [ 1, 2 ])
     --> Just (Tree.singleton "bee")
 
     tree "jo"
@@ -191,7 +110,7 @@ restructure reduce =
             , Tree.singleton "dee"
             ]
         ]
-        |> Tree.Navigate.at (Tree.Path.follow [ 1, 2 ])
+        |> Tree.Navigate.to (Tree.Path.follow [ 1, 2 ])
     --> Nothing
 
 -}
@@ -265,7 +184,7 @@ alter path updateAtPath =
                 )
 
 
-{-| Alter every label based on its [`TreePath`](Tree-Path#TreePath) and current value.
+{-| Change every label based on its [`TreePath`](Tree-Path#TreePath) and current value.
 
     import Tree exposing (tree)
     import Tree.Navigate
@@ -285,17 +204,28 @@ alter path updateAtPath =
     -->     , Tree.singleton ( 10, Tree.Path.follow [ 2 ] )
     -->     ]
 
+
+    tree 0 [ Tree.singleton 1, tree 2 [ Tree.singleton 3 ], Tree.singleton 5 ]
+        |> Tree.Navigate.map identity
+        |> Tree.flatten
+    --> [ { label = 0, path = Tree.Path.atTrunk }
+    --> , { label = 1, path = Tree.Path.follow [ 0 ] }
+    --> , { label = 2, path = Tree.Path.follow [ 1 ] }
+    --> , { label = 3, path = Tree.Path.follow [ 1, 0 ] }
+    --> , { label = 5, path = Tree.Path.follow [ 2 ] }
+    --> ]
+
 -}
 map :
     ({ path : TreePath, label : label } -> mappedLabel)
     -> (Tree label -> Tree mappedLabel)
-map elementAlter =
+map labelWithPathChange =
     let
         mapStep : TreePath -> (Tree label -> Tree mappedLabel)
         mapStep path =
             \tree ->
                 Tree.tree
-                    (elementAlter { path = path, label = tree |> Tree.label })
+                    (labelWithPathChange { path = path, label = tree |> Tree.label })
                     (tree
                         |> Tree.children
                         |> List.indexedMap
