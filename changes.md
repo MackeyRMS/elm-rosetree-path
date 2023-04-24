@@ -1,5 +1,9 @@
 # changelog
 
+#### 2.0.1
+
+readme example correct
+
 ## 2.0.0
 
 complete revamp
