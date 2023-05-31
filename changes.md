@@ -1,5 +1,9 @@
 # changelog
 
+#### 2.0.4
+
+readme correct
+
 #### 2.0.3
 
 readme example correct
