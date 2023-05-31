@@ -4,8 +4,9 @@ A path is the location of a branch in a tree (or forest).
 With this package you can use paths to navigate and alter
 a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/) or a list of them, also called a "forest".
 
-A [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper) can also focus a specific node in a tree.
-However! Paths can be a nice alternative if you want to
+An alternative way of
+keeping track of one focus is a [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper).
+However! Paths can be a nice if you want to
 - keep track of many different locations
 - easily deal with _potentially_ focussed nodes etc.
 - don't want to pollute `Msg`es with potentially large, changing tree content
@@ -24,11 +25,16 @@ type alias Model =
     , dragged : Maybe TreePath
     }
 
+type Msg =
+    = RightClickedOn ForestPath
+    | MouseMoved ( Float, Float )
+  --| ...
+
+
 viewTree =
-    Tree.restructure
+    Tree.Navigate.restructure
         (\sub ->
-            (sub.label
-                |> ...
+            (...
                 |> onMouseDown (PressedOn sub.path)
                 |> (case sub.path |> Tree.Path.step of
                         Just childPath ->
@@ -42,11 +48,6 @@ viewTree =
                 |> group
                 |> shift sub.label.translate
         )
-
-type Msg =
-    = RightClickedOn ForestPath
-    | MouseMoved ( Float, Float )
-  --| ...
 
 update msg model =
     case msg of
