@@ -6,14 +6,12 @@ a [zwilias/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-roset
 
 An alternative way of
 keeping track of one focus is a [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper).
-However! Paths can be a nice if you want to
+However! Paths are nice if you want to
 - keep track of many different locations
 - easily deal with _potentially_ focussed nodes etc.
 - don't want to pollute `Msg`es with potentially large, changing tree content
 
-Example: There's a big tree on the screen. You want to be able to move and delete a subtree.
-
-See in [example](https://github.com/lue-bird/rosetree-path/tree/master/example/).
+Example: A big tree on the screen where subtrees can be moved and deleted.
 
 ```elm
 import Tree.Path exposing (TreePath)
@@ -76,3 +74,5 @@ update msg model =
         
       --...
 ```
+
+Complete implementation in [example/](https://github.com/lue-bird/rosetree-path/tree/master/example/).
