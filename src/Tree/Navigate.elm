@@ -72,7 +72,7 @@ restructure reduce =
                                 |> restructure
                                     (\state ->
                                         reduce
-                                            { path = state.path |> Tree.Path.toChild index
+                                            { path = index :: state.path
                                             , label = state.label
                                             , children = state.children
                                             }
