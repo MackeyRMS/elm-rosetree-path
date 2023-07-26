@@ -1,5 +1,9 @@
 # changelog
 
+#### 2.0.5
+
+`Tree.Navigate.restructure` correct
+
 #### 2.0.4
 
 readme correct
