@@ -2,10 +2,10 @@
 
 A path is the location of a branch in a tree (or forest).
 With this package you can use paths to navigate and alter
-a [gampleman/elm-rosetree](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/) or a list of them, also called a "forest".
+a [gampleman/elm-rosetree](https://package.elm-lang.org/packages/gampleman/elm-rosetree/latest/) or a list of them, also called a "forest".
 
 An alternative way of
-keeping track of one focus is a [`Tree.Zipper`](https://package.elm-lang.org/packages/zwilias/elm-rosetree/latest/Tree-Zipper).
+keeping track of one focus is a [`Tree.Zipper`](https://package.elm-lang.org/packages/gampleman/elm-rosetree/latest/Tree-Zipper).
 However! Paths are nice if you want to
 - keep track of many different locations
 - easily deal with _potentially_ focussed nodes etc.
