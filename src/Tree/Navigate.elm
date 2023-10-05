@@ -25,7 +25,7 @@ using [`TreePath`](Tree-Path#TreePath)
 -}
 
 import List.Extra
-import Tree exposing (Tree)
+import Tree exposing (Tree(..))
 import Tree.Path exposing (TreePath)
 
 
@@ -59,13 +59,12 @@ restructure :
     ({ path : TreePath, label : label, children : List folded } -> folded)
     -> (Tree label -> folded)
 restructure reduce =
-    \tree ->
+    \(Tree label children) ->
         reduce
             { path = Tree.Path.atTrunk
-            , label = tree |> Tree.label
+            , label = label
             , children =
-                tree
-                    |> Tree.children
+                children
                     |> List.indexedMap
                         (\index childTree ->
                             childTree
@@ -120,9 +119,8 @@ to path =
             Just
 
         Just ( index, further ) ->
-            \tree ->
-                tree
-                    |> Tree.children
+            \(Tree _ children) ->
+                children
                     |> List.Extra.getAt index
                     |> Maybe.andThen (to further)
 
@@ -222,11 +220,10 @@ map labelWithPathChange =
     let
         mapStep : TreePath -> (Tree label -> Tree mappedLabel)
         mapStep path =
-            \tree ->
+            \(Tree label children) ->
                 Tree.tree
-                    (labelWithPathChange { path = path, label = tree |> Tree.label })
-                    (tree
-                        |> Tree.children
+                    (labelWithPathChange { path = path, label = label })
+                    (children
                         |> List.indexedMap
                             (\index ->
                                 mapStep (path |> Tree.Path.toChild index)
