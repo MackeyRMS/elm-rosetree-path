@@ -13,7 +13,7 @@ However! Paths are nice if you want to
 
 Example: A big tree on the screen where subtrees can be moved and deleted.
 
-```elm
+```
 import Tree.Path exposing (TreePath)
 import Tree.Navigate
 
