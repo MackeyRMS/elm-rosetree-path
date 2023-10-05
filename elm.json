@@ -1,22 +1,22 @@
 {
-    "type": "package",
-    "name": "lue-bird/elm-rosetree-path",
-    "summary": "navigate rosetrees and forests",
-    "license": "MIT",
-    "version": "2.0.5",
-    "exposed-modules": [
-        "Tree.Path",
-        "Tree.Navigate",
-        "Forest.Path",
-        "Forest.Navigate"
-    ],
-    "elm-version": "0.19.1 <= v < 0.20.0",
-    "dependencies": {
-        "elm/core": "1.0.5 <= v < 2.0.0",
-        "elm-community/list-extra": "8.3.1 <= v < 9.0.0",
-        "zwilias/elm-rosetree": "1.5.0 <= v < 2.0.0"
-    },
-    "test-dependencies": {
-        "elm-explorations/test": "2.1.1 <= v < 3.0.0"
-    }
+  "type": "package",
+  "name": "MackeyRMS/elm-rosetree-path",
+  "summary": "navigate rosetrees and forests",
+  "license": "MIT",
+  "version": "1.0.0",
+  "exposed-modules": [
+    "Tree.Path",
+    "Tree.Navigate",
+    "Forest.Path",
+    "Forest.Navigate"
+  ],
+  "elm-version": "0.19.1 <= v < 0.20.0",
+  "dependencies": {
+    "elm/core": "1.0.5 <= v < 2.0.0",
+    "elm-community/list-extra": "8.3.1 <= v < 9.0.0",
+    "gampleman/elm-rosetree": "1.0.0 <= v < 2.0.0"
+  },
+  "test-dependencies": {
+    "elm-explorations/test": "2.1.1 <= v < 3.0.0"
+  }
 }

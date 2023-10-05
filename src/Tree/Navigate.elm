@@ -177,7 +177,7 @@ alter path updateAtPath =
             updateAtPath
 
         Just ( index, further ) ->
-            Tree.mapChildren
+            Tree.updateChildren
                 (List.Extra.updateAt index
                     (alter further updateAtPath)
                 )

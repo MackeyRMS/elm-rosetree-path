@@ -194,7 +194,7 @@ remove path =
 
         Just furtherInChildren ->
             List.Extra.updateAt (path |> Forest.Path.treeIndex)
-                (Tree.mapChildren (remove furtherInChildren))
+                (Tree.updateChildren (remove furtherInChildren))
 
 
 {-| Change every tree label based on its [`ForestPath`](Forest-Path#ForestPath) and current value.
