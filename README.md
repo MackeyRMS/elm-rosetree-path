@@ -75,4 +75,4 @@ update msg model =
       --...
 ```
 
-Complete implementation in [example/](https://github.com/lue-bird/rosetree-path/tree/master/example/).
+Complete implementation in [example/](https://github.com/MackeyRMS/rosetree-path/tree/master/example/).
